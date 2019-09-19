@@ -1,5 +1,5 @@
 /* Author:          ezhex1991@outlook.com
- * CreateTime:      2019-06-18 17:11:09
+ * CreateTime:      2019-06-18 17:01:27
  * Organization:    #ORGANIZATION#
  * Description:     
  */
@@ -9,7 +9,25 @@ using UnityEngine.Rendering.PostProcessing;
 
 namespace EZhex1991.EZPostProcessing
 {
-    public class EZOutlineRenderer : PostProcessEffectRenderer<EZOutlineSettings>
+    [System.Serializable]
+    [PostProcess(typeof(EZOutlineRenderer), PostProcessEvent.BeforeTransparent, "EZUnity/EZOutline", allowInSceneView: false)]
+    public class EZOutline : PostProcessEffectSettings
+    {
+        public IntParameter _SampleDistance = new IntParameter() { value = 1 };
+
+        public FloatParameter _DepthSensitivity = new FloatParameter() { value = 5 };
+        public FloatParameter _NormalSensitivity = new FloatParameter();
+
+        public ColorParameter _CoverColor = new ColorParameter();
+        [Range(0, 1)]
+        public FloatParameter _CoverStrength = new FloatParameter() { value = 0 };
+
+        public ColorParameter _OutlineColor = new ColorParameter();
+        [Range(0, 1)]
+        public FloatParameter _OutlineStrength = new FloatParameter() { value = 1 };
+    }
+
+    public class EZOutlineRenderer : PostProcessEffectRenderer<EZOutline>
     {
         private const string ShaderName = "Hidden/EZUnity/PostProcessing/EZOutline";
         private static Shader m_Shader;

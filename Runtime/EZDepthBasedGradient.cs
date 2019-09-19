@@ -1,5 +1,5 @@
 /* Author:          ezhex1991@outlook.com
- * CreateTime:      2019-09-19 11:40:00
+ * CreateTime:      2019-09-19 11:39:34
  * Organization:    #ORGANIZATION#
  * Description:     
  */
@@ -9,7 +9,19 @@ using UnityEngine.Rendering.PostProcessing;
 
 namespace EZhex1991.EZPostProcessing
 {
-    public class EZDepthBasedGradientRenderer : PostProcessEffectRenderer<EZDepthBasedGradientSettings>
+    [System.Serializable]
+    [PostProcess(typeof(EZDepthBasedGradientRenderer), PostProcessEvent.BeforeStack, "EZUnity/EZDepthBasedGradient", allowInSceneView: false)]
+    public class EZDepthBasedGradient : PostProcessEffectSettings
+    {
+        public ColorParameter _ColorNear = new ColorParameter() { value = Color.white };
+        public ColorParameter _ColorFar = new ColorParameter() { value = Color.black };
+
+        public FloatParameter _GradientPower = new FloatParameter() { value = 1 };
+        [MinMax(0, 1)]
+        public Vector2Parameter _GradientSoftness = new Vector2Parameter() { value = new Vector2(0, 1) };
+    }
+
+    public class EZDepthBasedGradientRenderer : PostProcessEffectRenderer<EZDepthBasedGradient>
     {
         private const string ShaderName = "Hidden/EZUnity/PostProcessing/EZDepthBasedGradient";
         private static Shader m_Shader;
