@@ -14,6 +14,7 @@ MonoBehaviour:
   settings:
   - {fileID: 114701900401349514}
   - {fileID: 114395738290172558}
+  - {fileID: 114526044361150356}
 --- !u!114 &114372768077199508
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -69,7 +70,7 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: EZColorBasedOutlineSettings
   m_EditorClassIdentifier: Assembly-CSharp:EZhex1991.EZPostProcessing:EZColorBasedOutlineSettings
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
     value: 1
@@ -81,10 +82,37 @@ MonoBehaviour:
     value: 50
   _OutlineColor:
     overrideState: 1
-    value: {r: 0, g: 0, b: 0, a: 1}
+    value: {r: 0, g: 0, b: 1, a: 1}
   _OutlineThickness:
     overrideState: 1
     value: 1
+--- !u!114 &114526044361150356
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: EZDepthBasedGradientSettings
+  m_EditorClassIdentifier: Assembly-CSharp:EZhex1991.EZPostProcessing:EZDepthBasedGradientSettings
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  _ColorNear:
+    overrideState: 1
+    value: {r: 1, g: 1, b: 1, a: 1}
+  _ColorFar:
+    overrideState: 1
+    value: {r: 0, g: 0, b: 0, a: 1}
+  _GradientPower:
+    overrideState: 1
+    value: 1
+  _GradientSoftness:
+    overrideState: 1
+    value: {x: 0, y: 0.98067945}
 --- !u!114 &114701900401349514
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -96,19 +124,19 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: EZOutlineSettings
   m_EditorClassIdentifier: Assembly-CSharp:EZhex1991.EZPostProcessing:EZOutlineSettings
-  active: 0
+  active: 1
   enabled:
     overrideState: 1
     value: 1
   _SampleDistance:
     overrideState: 1
-    value: 1
+    value: 2
   _DepthSensitivity:
     overrideState: 1
     value: 5
   _NormalSensitivity:
     overrideState: 1
-    value: 0
+    value: 5
   _CoverColor:
     overrideState: 1
     value: {r: 0, g: 0, b: 0, a: 0}
@@ -117,7 +145,7 @@ MonoBehaviour:
     value: 0
   _OutlineColor:
     overrideState: 1
-    value: {r: 0, g: 0, b: 0, a: 0}
+    value: {r: 1, g: 0, b: 0, a: 1}
   _OutlineStrength:
     overrideState: 1
     value: 1
