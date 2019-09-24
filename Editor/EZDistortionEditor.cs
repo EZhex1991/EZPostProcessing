@@ -3,6 +3,7 @@
  * Organization:    #ORGANIZATION#
  * Description:     
  */
+#if UNITY_POST_PROCESSING_STACK_V2
 using UnityEditor.Rendering.PostProcessing;
 
 namespace EZhex1991.EZPostProcessing
@@ -51,3 +52,4 @@ namespace EZhex1991.EZPostProcessing
         }
     }
 }
+#endif
