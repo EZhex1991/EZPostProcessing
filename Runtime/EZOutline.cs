@@ -15,8 +15,10 @@ namespace EZhex1991.EZPostProcessing
     {
         public IntParameter _SampleDistance = new IntParameter() { value = 1 };
 
+        [UnityEngine.Rendering.PostProcessing.Min(0)]
         public FloatParameter _DepthSensitivity = new FloatParameter() { value = 5 };
-        public FloatParameter _NormalSensitivity = new FloatParameter();
+        [UnityEngine.Rendering.PostProcessing.Min(0)]
+        public FloatParameter _NormalSensitivity = new FloatParameter() { value = 0 };
 
         public ColorParameter _CoverColor = new ColorParameter();
         [Range(0, 1)]

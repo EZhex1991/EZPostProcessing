@@ -17,7 +17,7 @@ namespace EZhex1991.EZPostProcessing
         public ColorParameter _ColorFar = new ColorParameter() { value = Color.black };
 
         public FloatParameter _GradientPower = new FloatParameter() { value = 1 };
-        [MinMax(0, 1)]
+        [EZMinMax(0, 1)]
         public Vector2Parameter _GradientSoftness = new Vector2Parameter() { value = new Vector2(0, 1) };
     }
 
