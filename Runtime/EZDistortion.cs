@@ -17,14 +17,14 @@ namespace EZhex1991.EZPostProcessing
         [System.Serializable]
         public class ModeParameter : ParameterOverride<Mode> { }
 
-        public ModeParameter distortionMode = new ModeParameter() { value = Mode.Screen };
-        public Vector2Parameter distortionStrength = new Vector2Parameter() { value = new Vector2(0.1f, 0.1f) };
+        public ModeParameter mode = new ModeParameter() { value = Mode.Screen };
+        public Vector2Parameter intensity = new Vector2Parameter() { value = new Vector2(0.1f, 0.1f) };
 
         // Layer Mode
-        public LayerMaskParameter distortionSourceLayer = new LayerMaskParameter();
-        public Vector2IntParameter distortionTextureResolution = new Vector2IntParameter() { value = new Vector2Int(512, 512) };
-        public RenderTextureFormatParameter distortionTextureFormat = new RenderTextureFormatParameter() { value = RenderTextureFormat.R8 };
-        public RenderTextureDepthParameter distortionDepth = new RenderTextureDepthParameter() { value = RenderTextureDepth.Bits16 };
+        public LayerMaskParameter sourceLayer = new LayerMaskParameter();
+        public Vector2IntParameter textureResolution = new Vector2IntParameter() { value = new Vector2Int(512, 512) };
+        public RenderTextureFormatParameter textureFormat = new RenderTextureFormatParameter() { value = RenderTextureFormat.R8 };
+        public RenderTextureDepthParameter textureDepth = new RenderTextureDepthParameter() { value = RenderTextureDepth.Bits16 };
 
         // Screen Mode
         public TextureParameter distortionTex = new TextureParameter() { defaultState = TextureParameterDefault.White };
@@ -32,8 +32,15 @@ namespace EZhex1991.EZPostProcessing
 
     public class EZDistortionRenderer : PostProcessEffectRenderer<EZDistortion>
     {
-        private const string ShaderName = "Hidden/EZUnity/PostProcessing/EZDistortion";
-        private const string Keyword_DepthTest_On = "_DEPTHTEST_ON";
+        private static class Uniforms
+        {
+            public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZDistortion";
+            public static readonly string Keyword_DepthTest_On = "_DEPTHTEST_ON";
+            public static readonly int Property_DistortionIntensity = Shader.PropertyToID("_DistortionIntensity");
+            public static readonly int Property_DistortionTex = Shader.PropertyToID("_DistortionTex");
+            public static readonly int Property_DistortionDepthTex = Shader.PropertyToID("_DistortionDepthTex");
+        }
+
         private static Shader m_Shader;
         private static Shader shader
         {
@@ -41,7 +48,7 @@ namespace EZhex1991.EZPostProcessing
             {
                 if (m_Shader == null)
                 {
-                    m_Shader = Shader.Find(ShaderName);
+                    m_Shader = Shader.Find(Uniforms.ShaderName);
                 }
                 return m_Shader;
             }
@@ -67,13 +74,13 @@ namespace EZhex1991.EZPostProcessing
         {
             get
             {
-                Vector2Int resolution = settings.distortionTextureResolution;
+                Vector2Int resolution = settings.textureResolution;
                 if (m_DistortionTex == null
                     || m_DistortionTex.width != resolution.x || m_DistortionTex.height != resolution.y
-                    || m_DistortionTex.format != settings.distortionTextureFormat
+                    || m_DistortionTex.format != settings.textureFormat
                 )
                 {
-                    m_DistortionTex = new RenderTexture(resolution.x, resolution.y, 0, settings.distortionTextureFormat);
+                    m_DistortionTex = new RenderTexture(resolution.x, resolution.y, 0, settings.textureFormat);
                 }
                 return m_DistortionTex;
             }
@@ -84,13 +91,13 @@ namespace EZhex1991.EZPostProcessing
         {
             get
             {
-                Vector2Int resolution = settings.distortionTextureResolution;
+                Vector2Int resolution = settings.textureResolution;
                 if (m_DistortionDepthTex == null
                     || m_DistortionDepthTex.width != resolution.x || m_DistortionDepthTex.height != resolution.y
-                    || (settings.distortionDepth != RenderTextureDepth.None && m_DistortionDepthTex.depth != settings.distortionDepth)
+                    || (settings.textureDepth != RenderTextureDepth.None && m_DistortionDepthTex.depth != settings.textureDepth)
                 )
                 {
-                    m_DistortionDepthTex = new RenderTexture(resolution.x, resolution.y, settings.distortionDepth, RenderTextureFormat.Depth);
+                    m_DistortionDepthTex = new RenderTexture(resolution.x, resolution.y, settings.textureDepth, RenderTextureFormat.Depth);
                 }
                 return m_DistortionDepthTex;
             }
@@ -103,36 +110,37 @@ namespace EZhex1991.EZPostProcessing
             {
                 RuntimeUtilities.Destroy(m_DistortionCamera.gameObject);
             }
-            m_DistortionTex.Release();
+            if (m_DistortionTex != null) m_DistortionTex.Release();
+            if (m_DistortionDepthTex != null) m_DistortionDepthTex.Release();
         }
         public override void Render(PostProcessRenderContext context)
         {
             PropertySheet sheet = context.propertySheets.Get(shader);
-            switch (settings.distortionMode.value)
+            switch (settings.mode.value)
             {
                 case EZDistortion.Mode.Screen:
-                    sheet.properties.SetTexture("_DistortionTex", settings.distortionTex.value == null ? EZPostProcessingUtility.grayTexture : settings.distortionTex.value);
+                    sheet.properties.SetTexture(Uniforms.Property_DistortionTex, settings.distortionTex.value == null ? EZPostProcessingUtility.grayTexture : settings.distortionTex.value);
                     break;
                 case EZDistortion.Mode.Layer:
                     GetDistortionTexture(context);
-                    sheet.properties.SetTexture("_DistortionTex", distortionTex);
-                    if (settings.distortionDepth.value != RenderTextureDepth.None)
+                    sheet.properties.SetTexture(Uniforms.Property_DistortionTex, distortionTex);
+                    if (settings.textureDepth.value != RenderTextureDepth.None)
                     {
-                        sheet.properties.SetTexture("_DistortionDepthTex", distortionDepthTex);
-                        sheet.EnableKeyword(Keyword_DepthTest_On);
+                        sheet.properties.SetTexture(Uniforms.Property_DistortionDepthTex, distortionDepthTex);
+                        sheet.EnableKeyword(Uniforms.Keyword_DepthTest_On);
                     }
                     else
                     {
-                        sheet.DisableKeyword(Keyword_DepthTest_On);
+                        sheet.DisableKeyword(Uniforms.Keyword_DepthTest_On);
                     }
                     break;
             }
-            sheet.properties.SetVector("_DistortionStrength", settings.distortionStrength);
+            sheet.properties.SetVector(Uniforms.Property_DistortionIntensity, settings.intensity);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
         }
         public override DepthTextureMode GetCameraFlags()
         {
-            return settings.distortionDepth.value != RenderTextureDepth.None ? (base.GetCameraFlags() | DepthTextureMode.Depth) : base.GetCameraFlags();
+            return settings.textureDepth.value != RenderTextureDepth.None ? (base.GetCameraFlags() | DepthTextureMode.Depth) : base.GetCameraFlags();
         }
 
         private void SetupCamera()
@@ -159,8 +167,8 @@ namespace EZhex1991.EZPostProcessing
         private void GetDistortionTexture(PostProcessRenderContext context)
         {
             CopyCameraSettings(context.camera, distortionCamera);
-            distortionCamera.cullingMask = settings.distortionSourceLayer;
-            if (settings.distortionDepth.value != RenderTextureDepth.None)
+            distortionCamera.cullingMask = settings.sourceLayer;
+            if (settings.textureDepth.value != RenderTextureDepth.None)
             {
                 distortionCamera.depthTextureMode = DepthTextureMode.Depth;
                 distortionCamera.SetTargetBuffers(distortionTex.colorBuffer, distortionDepthTex.depthBuffer);

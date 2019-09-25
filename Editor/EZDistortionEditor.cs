@@ -11,23 +11,23 @@ namespace EZhex1991.EZPostProcessing
     [PostProcessEditor(typeof(EZDistortion))]
     public class EZDistortionEditor : PostProcessEffectEditor<EZDistortion>
     {
-        private SerializedParameterOverride m_DistortionMode;
-        private SerializedParameterOverride m_DistortionStrength;
-        private SerializedParameterOverride m_DistortionSourceLayer;
-        private SerializedParameterOverride m_DistortionTextureResolution;
-        private SerializedParameterOverride m_DistortionTextureFormat;
-        private SerializedParameterOverride m_DistortionDepth;
+        private SerializedParameterOverride m_Mode;
+        private SerializedParameterOverride m_Intensity;
+        private SerializedParameterOverride m_SourceLayer;
+        private SerializedParameterOverride m_TextureResolution;
+        private SerializedParameterOverride m_TextureFormat;
+        private SerializedParameterOverride m_TextureDepth;
         private SerializedParameterOverride m_DistortionTex;
 
         public override void OnEnable()
         {
             base.OnEnable();
-            m_DistortionMode = FindParameterOverride(x => x.distortionMode);
-            m_DistortionStrength = FindParameterOverride(x => x.distortionStrength);
-            m_DistortionSourceLayer = FindParameterOverride(x => x.distortionSourceLayer);
-            m_DistortionTextureResolution = FindParameterOverride(x => x.distortionTextureResolution);
-            m_DistortionTextureFormat = FindParameterOverride(x => x.distortionTextureFormat);
-            m_DistortionDepth = FindParameterOverride(x => x.distortionDepth); ;
+            m_Mode = FindParameterOverride(x => x.mode);
+            m_Intensity = FindParameterOverride(x => x.intensity);
+            m_SourceLayer = FindParameterOverride(x => x.sourceLayer);
+            m_TextureResolution = FindParameterOverride(x => x.textureResolution);
+            m_TextureFormat = FindParameterOverride(x => x.textureFormat);
+            m_TextureDepth = FindParameterOverride(x => x.textureDepth); ;
             m_DistortionTex = FindParameterOverride(x => x.distortionTex);
         }
 
@@ -35,19 +35,19 @@ namespace EZhex1991.EZPostProcessing
         {
             base.OnInspectorGUI();
 
-            PropertyField(m_DistortionMode);
-            PropertyField(m_DistortionStrength);
-            int mode = m_DistortionMode.value.intValue;
+            PropertyField(m_Mode);
+            PropertyField(m_Intensity);
+            int mode = m_Mode.value.intValue;
             if (mode == (int)EZDistortion.Mode.Screen)
             {
                 PropertyField(m_DistortionTex);
             }
             else if (mode == (int)EZDistortion.Mode.Layer)
             {
-                PropertyField(m_DistortionSourceLayer);
-                PropertyField(m_DistortionTextureResolution);
-                PropertyField(m_DistortionTextureFormat);
-                PropertyField(m_DistortionDepth);
+                PropertyField(m_SourceLayer);
+                PropertyField(m_TextureResolution);
+                PropertyField(m_TextureFormat);
+                PropertyField(m_TextureDepth);
             }
         }
     }

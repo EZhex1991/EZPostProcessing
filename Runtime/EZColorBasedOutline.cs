@@ -21,7 +21,15 @@ namespace EZhex1991.EZPostProcessing
 
     public class EZColorBasedOutlineRenderer : PostProcessEffectRenderer<EZColorBasedOutline>
     {
-        private const string ShaderName = "Hidden/EZUnity/PostProcessing/EZColorBasedOutline";
+        private static class Uniforms
+        {
+            public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZColorBasedOutline";
+            public static readonly int Property_GrayWeight = Shader.PropertyToID("_GrayWeight");
+            public static readonly int Property_Tolerance = Shader.PropertyToID("_Tolerance");
+            public static readonly int Property_OutlineColor = Shader.PropertyToID("_OutlineColor");
+            public static readonly int Property_OutlineThickness = Shader.PropertyToID("_OutlineThickness");
+        }
+
         private static Shader m_Shader;
         private static Shader shader
         {
@@ -29,7 +37,7 @@ namespace EZhex1991.EZPostProcessing
             {
                 if (m_Shader == null)
                 {
-                    m_Shader = Shader.Find(ShaderName);
+                    m_Shader = Shader.Find(Uniforms.ShaderName);
                 }
                 return m_Shader;
             }
@@ -38,10 +46,10 @@ namespace EZhex1991.EZPostProcessing
         public override void Render(PostProcessRenderContext context)
         {
             PropertySheet sheet = context.propertySheets.Get(shader);
-            sheet.properties.SetColor("_GrayWeight", settings._GrayWeight);
-            sheet.properties.SetFloat("_Tolerance", settings._Tolerance);
-            sheet.properties.SetColor("_OutlineColor", settings._OutlineColor);
-            sheet.properties.SetFloat("_OutlineThickness", settings._OutlineThickness);
+            sheet.properties.SetColor(Uniforms.Property_GrayWeight, settings._GrayWeight);
+            sheet.properties.SetFloat(Uniforms.Property_Tolerance, settings._Tolerance);
+            sheet.properties.SetColor(Uniforms.Property_OutlineColor, settings._OutlineColor);
+            sheet.properties.SetFloat(Uniforms.Property_OutlineThickness, settings._OutlineThickness);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
         }
     }

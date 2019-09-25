@@ -31,7 +31,18 @@ namespace EZhex1991.EZPostProcessing
 
     public class EZOutlineRenderer : PostProcessEffectRenderer<EZOutline>
     {
-        private const string ShaderName = "Hidden/EZUnity/PostProcessing/EZOutline";
+        private static class Uniforms
+        {
+            public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZOutline";
+            public static readonly int Property_SampleDistance = Shader.PropertyToID("_SampleDistance");
+            public static readonly int Property_DepthSensitivity = Shader.PropertyToID("_DepthSensitivity");
+            public static readonly int Property_NormalSensitivity = Shader.PropertyToID("_NormalSensitivity");
+            public static readonly int Property_CoverColor = Shader.PropertyToID("_CoverColor");
+            public static readonly int Property_CoverStrength = Shader.PropertyToID("_CoverStrength");
+            public static readonly int Property_OutlineColor = Shader.PropertyToID("_OutlineColor");
+            public static readonly int Property_OutlineStrength = Shader.PropertyToID("_OutlineStrength");
+        }
+
         private static Shader m_Shader;
         private static Shader shader
         {
@@ -39,7 +50,7 @@ namespace EZhex1991.EZPostProcessing
             {
                 if (m_Shader == null)
                 {
-                    m_Shader = Shader.Find(ShaderName);
+                    m_Shader = Shader.Find(Uniforms.ShaderName);
                 }
                 return m_Shader;
             }
@@ -48,13 +59,13 @@ namespace EZhex1991.EZPostProcessing
         public override void Render(PostProcessRenderContext context)
         {
             PropertySheet sheet = context.propertySheets.Get(shader);
-            sheet.properties.SetFloat("_SampleDistance", settings._SampleDistance);
-            sheet.properties.SetFloat("_DepthSensitivity", settings._DepthSensitivity);
-            sheet.properties.SetFloat("_NormalSensitivity", settings._NormalSensitivity);
-            sheet.properties.SetColor("_CoverColor", settings._CoverColor);
-            sheet.properties.SetFloat("_CoverStrength", settings._CoverStrength);
-            sheet.properties.SetColor("_OutlineColor", settings._OutlineColor);
-            sheet.properties.SetFloat("_OutlineStrength", settings._OutlineStrength);
+            sheet.properties.SetFloat(Uniforms.Property_SampleDistance, settings._SampleDistance);
+            sheet.properties.SetFloat(Uniforms.Property_DepthSensitivity, settings._DepthSensitivity);
+            sheet.properties.SetFloat(Uniforms.Property_NormalSensitivity, settings._NormalSensitivity);
+            sheet.properties.SetColor(Uniforms.Property_CoverColor, settings._CoverColor);
+            sheet.properties.SetFloat(Uniforms.Property_CoverStrength, settings._CoverStrength);
+            sheet.properties.SetColor(Uniforms.Property_OutlineColor, settings._OutlineColor);
+            sheet.properties.SetFloat(Uniforms.Property_OutlineStrength, settings._OutlineStrength);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
         }
 

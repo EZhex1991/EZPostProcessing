@@ -12,7 +12,7 @@ Shader "Hidden/EZUnity/PostProcessing/EZDistortion" {
 		TEXTURE2D_SAMPLER2D(_DistortionTex, sampler_DistortionTex);
 		TEXTURE2D_SAMPLER2D(_DistortionDepthTex, sampler_DistortionDepthTex);
 
-		float2 _DistortionStrength;
+		half2 _DistortionIntensity;
 	ENDHLSL
 
 	SubShader {
@@ -31,9 +31,9 @@ Shader "Hidden/EZUnity/PostProcessing/EZDistortion" {
 				#if _DEPTHTEST_ON
 					float mainDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
 					float distortionDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_DistortionDepthTex, sampler_DistortionDepthTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
-					float2 uv = i.texcoord + step(distortionDepth, mainDepth) * (distortionTex.r - 0.5) * _DistortionStrength;
+					float2 uv = i.texcoord + step(distortionDepth, mainDepth) * (distortionTex.r - 0.5) * _DistortionIntensity;
 				#else
-					float2 uv = i.texcoord + (distortionTex.r - 0.5) * _DistortionStrength;
+					float2 uv = i.texcoord + (distortionTex.r - 0.5) * _DistortionIntensity;
 				#endif
 				half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
 				return color;

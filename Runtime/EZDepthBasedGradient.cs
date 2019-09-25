@@ -23,7 +23,16 @@ namespace EZhex1991.EZPostProcessing
 
     public class EZDepthBasedGradientRenderer : PostProcessEffectRenderer<EZDepthBasedGradient>
     {
-        private const string ShaderName = "Hidden/EZUnity/PostProcessing/EZDepthBasedGradient";
+        private static class Uniforms
+        {
+            public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZDepthBasedGradient";
+            public static readonly int Property_ColorNear = Shader.PropertyToID("_ColorNear");
+            public static readonly int Property_ColorFar = Shader.PropertyToID("_ColorFar");
+            public static readonly int Property_GradientPower = Shader.PropertyToID("_GradientPower");
+            public static readonly int Property_GradientSoftness = Shader.PropertyToID("_GradientSoftness");
+
+        }
+
         private static Shader m_Shader;
         private static Shader shader
         {
@@ -31,7 +40,7 @@ namespace EZhex1991.EZPostProcessing
             {
                 if (m_Shader == null)
                 {
-                    m_Shader = Shader.Find(ShaderName);
+                    m_Shader = Shader.Find(Uniforms.ShaderName);
                 }
                 return m_Shader;
             }
@@ -40,10 +49,10 @@ namespace EZhex1991.EZPostProcessing
         public override void Render(PostProcessRenderContext context)
         {
             PropertySheet sheet = context.propertySheets.Get(shader);
-            sheet.properties.SetColor("_ColorNear", settings._ColorNear);
-            sheet.properties.SetColor("_ColorFar", settings._ColorFar);
-            sheet.properties.SetFloat("_GradientPower", settings._GradientPower);
-            sheet.properties.SetVector("_GradientSoftness", settings._GradientSoftness);
+            sheet.properties.SetColor(Uniforms.Property_ColorNear, settings._ColorNear);
+            sheet.properties.SetColor(Uniforms.Property_ColorFar, settings._ColorFar);
+            sheet.properties.SetFloat(Uniforms.Property_GradientPower, settings._GradientPower);
+            sheet.properties.SetVector(Uniforms.Property_GradientSoftness, settings._GradientSoftness);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
         }
     }
