@@ -39,8 +39,8 @@ Shader "Hidden/EZUnity/PostProcessing/EZColorBasedOutline" {
 				int isBorder = 0;
 				for (int x = -_OutlineThickness; x <= _OutlineThickness; x++) {
 					for (int y = -_OutlineThickness; y <= _OutlineThickness; y++) {
-						float2 uv = i.texcoord + float2(x, y) * _MainTex_TexelSize;
-						isBorder += step(_Tolerance, Difference(color, SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv), _GrayWeight));
+						float2 uv = i.texcoord + float2(x, y) * _MainTex_TexelSize.xy;
+						isBorder += step(max(_Tolerance, 0.1), Difference(color.rgb, SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).rgb, _GrayWeight.rgb));
 					}
 				}
 				color.rgb = lerp(color.rgb, _OutlineColor.rgb, saturate(isBorder) * _OutlineColor.a);

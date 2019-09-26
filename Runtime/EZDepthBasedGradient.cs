@@ -5,6 +5,7 @@
  */
 #if UNITY_POST_PROCESSING_STACK_V2
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
 
 namespace EZhex1991.EZPostProcessing
@@ -25,6 +26,7 @@ namespace EZhex1991.EZPostProcessing
     {
         private static class Uniforms
         {
+            public static readonly string Name = "EZDepthBasedGradient";
             public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZDepthBasedGradient";
             public static readonly int Property_ColorNear = Shader.PropertyToID("_ColorNear");
             public static readonly int Property_ColorFar = Shader.PropertyToID("_ColorFar");
@@ -49,11 +51,16 @@ namespace EZhex1991.EZPostProcessing
         public override void Render(PostProcessRenderContext context)
         {
             PropertySheet sheet = context.propertySheets.Get(shader);
+            CommandBuffer command = context.command;
+            command.BeginSample(Uniforms.Name);
+
             sheet.properties.SetColor(Uniforms.Property_ColorNear, settings._ColorNear);
             sheet.properties.SetColor(Uniforms.Property_ColorFar, settings._ColorFar);
             sheet.properties.SetFloat(Uniforms.Property_GradientPower, settings._GradientPower);
             sheet.properties.SetVector(Uniforms.Property_GradientSoftness, settings._GradientSoftness);
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+            command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+
+            command.EndSample(Uniforms.Name);
         }
     }
 }

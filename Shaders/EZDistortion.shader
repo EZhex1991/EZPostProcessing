@@ -22,22 +22,24 @@ Shader "Hidden/EZUnity/PostProcessing/EZDistortion" {
 
 		Pass {
 			HLSLPROGRAM
-			#pragma vertex VertDefault
-			#pragma fragment frag
-			#pragma shader_feature _ _DEPTHTEST_ON
 
-			half4 frag (VaryingsDefault i) : SV_Target {
-				half4 distortionTex = SAMPLE_TEXTURE2D(_DistortionTex, sampler_DistortionTex, i.texcoord);
-				#if _DEPTHTEST_ON
-					float mainDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
-					float distortionDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_DistortionDepthTex, sampler_DistortionDepthTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
-					float2 uv = i.texcoord + step(distortionDepth, mainDepth) * (distortionTex.r - 0.5) * _DistortionIntensity;
-				#else
-					float2 uv = i.texcoord + (distortionTex.r - 0.5) * _DistortionIntensity;
-				#endif
-				half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
-				return color;
-			}
+				#pragma vertex VertDefault
+				#pragma fragment frag
+				#pragma multi_compile _ _DEPTHTEST_ON
+
+				half4 frag (VaryingsDefault i) : SV_Target {
+					half4 distortionTex = SAMPLE_TEXTURE2D(_DistortionTex, sampler_DistortionTex, i.texcoord);
+					float2 distortion = (distortionTex.r - 0.5) * _DistortionIntensity;
+
+					#if _DEPTHTEST_ON
+						float mainDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
+						float distortionDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_DistortionDepthTex, sampler_DistortionDepthTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
+						distortion *= step(distortionDepth, mainDepth);
+					#endif
+
+					half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord + distortion);
+					return color;
+				}
 
 			ENDHLSL
 		}
