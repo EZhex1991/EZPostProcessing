@@ -3,7 +3,7 @@
 // Organization:	#ORGANIZATION#
 // Description:		
 
-Shader "Hidden/EZUnity/PostProcessing/EZOutline" {
+Shader "Hidden/EZUnity/PostProcessing/EZDepthBasedOutline" {
 	HLSLINCLUDE
 		#include "Packages/com.unity.postprocessing/PostProcessing/Shaders/StdLib.hlsl"
 		
@@ -56,6 +56,12 @@ Shader "Hidden/EZUnity/PostProcessing/EZOutline" {
 				float4 cdn = SAMPLE_TEXTURE2D(_CameraDepthNormalsTexture, sampler_CameraDepthNormalsTexture, uv);
 				return DecodeViewNormalStereo(cdn) * float3(1.0, 1.0, -1.0);
 			}
+			int EdgeCheck (float x) {
+				return step(x * (1 - x), 0);
+			}
+			int EdgeCheck (float2 uv) {
+				return EdgeCheck(uv.x) | EdgeCheck(uv.y);
+			}
 
 			int EdgeCheck (float2 uv1, float2 uv2) {
 				float3 normal1 = SampleNormal(uv1);
@@ -64,18 +70,20 @@ Shader "Hidden/EZUnity/PostProcessing/EZOutline" {
 				float depth2 = SampleDepth(uv2);
 
 				float3 normalDiff = abs(normal1 - normal2);
-				int normalCheck = (normalDiff.x + normalDiff.y) * _NormalSensitivity < 1.0;
-				int depthCheck = abs(depth1 - depth2) * _DepthSensitivity < depth1;
-				return normalCheck * depthCheck ? 0 : 1;
+				int checkNormal = step(1.0, (normalDiff.x + normalDiff.y) * _NormalSensitivity);
+				int checkDepth = step(depth1, abs(depth1 - depth2) * _DepthSensitivity);
+				int checkEdge = EdgeCheck(uv1) | EdgeCheck(uv2);
+
+				return ((1 - checkEdge) & (checkNormal | checkDepth));
 			}
 			half4 Frag (VaryingsDefault i) : SV_Target {
 				half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
 
-				float2 d = _SampleDistance * float2(0.5, -0.5);
-				float2 uv1 = i.texcoord + d.xx * _MainTex_TexelSize;
-				float2 uv2 = i.texcoord + d.xy * _MainTex_TexelSize;
-				float2 uv3 = i.texcoord + d.yy * _MainTex_TexelSize;
-				float2 uv4 = i.texcoord + d.yx * _MainTex_TexelSize;
+				float4 d = _MainTex_TexelSize.xyxy * float4(0.5, 0.5, -0.5, -0.5) * _SampleDistance;
+				float2 uv1 = i.texcoord + d.xy;
+				float2 uv2 = i.texcoord + d.xw;
+				float2 uv3 = i.texcoord + d.zw;
+				float2 uv4 = i.texcoord + d.zx;
 				int edge = EdgeCheck(uv1, uv3) + EdgeCheck(uv2, uv4);
 				edge = saturate(edge);
 

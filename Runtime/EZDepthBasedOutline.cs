@@ -5,13 +5,14 @@
  */
 #if UNITY_POST_PROCESSING_STACK_V2
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
 
 namespace EZhex1991.EZPostProcessing
 {
     [System.Serializable]
-    [PostProcess(typeof(EZOutlineRenderer), PostProcessEvent.BeforeTransparent, "EZUnity/EZOutline", allowInSceneView: false)]
-    public class EZOutline : PostProcessEffectSettings
+    [PostProcess(typeof(EZDepthBasedOutlineRenderer), PostProcessEvent.BeforeTransparent, "EZUnity/EZDepthBasedOutline", allowInSceneView: false)]
+    public class EZDepthBasedOutline : PostProcessEffectSettings
     {
         public IntParameter _SampleDistance = new IntParameter() { value = 1 };
 
@@ -29,11 +30,12 @@ namespace EZhex1991.EZPostProcessing
         public FloatParameter _OutlineStrength = new FloatParameter() { value = 1 };
     }
 
-    public class EZOutlineRenderer : PostProcessEffectRenderer<EZOutline>
+    public class EZDepthBasedOutlineRenderer : PostProcessEffectRenderer<EZDepthBasedOutline>
     {
         private static class Uniforms
         {
-            public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZOutline";
+            public static readonly string Name = "EZDepthBasedOutline";
+            public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZDepthBasedOutline";
             public static readonly int Property_SampleDistance = Shader.PropertyToID("_SampleDistance");
             public static readonly int Property_DepthSensitivity = Shader.PropertyToID("_DepthSensitivity");
             public static readonly int Property_NormalSensitivity = Shader.PropertyToID("_NormalSensitivity");
@@ -59,6 +61,9 @@ namespace EZhex1991.EZPostProcessing
         public override void Render(PostProcessRenderContext context)
         {
             PropertySheet sheet = context.propertySheets.Get(shader);
+            CommandBuffer command = context.command;
+            command.BeginSample(Uniforms.Name);
+
             sheet.properties.SetFloat(Uniforms.Property_SampleDistance, settings._SampleDistance);
             sheet.properties.SetFloat(Uniforms.Property_DepthSensitivity, settings._DepthSensitivity);
             sheet.properties.SetFloat(Uniforms.Property_NormalSensitivity, settings._NormalSensitivity);
@@ -66,7 +71,9 @@ namespace EZhex1991.EZPostProcessing
             sheet.properties.SetFloat(Uniforms.Property_CoverStrength, settings._CoverStrength);
             sheet.properties.SetColor(Uniforms.Property_OutlineColor, settings._OutlineColor);
             sheet.properties.SetFloat(Uniforms.Property_OutlineStrength, settings._OutlineStrength);
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+            command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+
+            command.EndSample(Uniforms.Name);
         }
 
         public override DepthTextureMode GetCameraFlags()
