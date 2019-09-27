@@ -36,15 +36,16 @@ namespace EZhex1991.EZPostProcessing
             base.OnInspectorGUI();
 
             PropertyField(m_Mode);
-            PropertyField(m_Intensity);
             int mode = m_Mode.value.intValue;
             if (mode == (int)EZDistortion.Mode.Screen)
             {
                 PropertyField(m_DistortionTex);
+                PropertyField(m_Intensity);
             }
             else if (mode == (int)EZDistortion.Mode.Layer)
             {
                 PropertyField(m_SourceLayer);
+                PropertyField(m_Intensity);
                 PropertyField(m_TextureResolution);
                 PropertyField(m_TextureFormat);
                 PropertyField(m_TextureDepth);

@@ -16,9 +16,9 @@ namespace EZhex1991.EZPostProcessing
     {
         public LayerMaskParameter sourceLayer = new LayerMaskParameter();
         public Vector2IntParameter textureResolution = new Vector2IntParameter() { value = new Vector2Int(512, 512) };
-        [Range(1, 10)]
-        public IntParameter diffussion = new IntParameter() { value = 7 };
         public RenderTextureDepthParameter textureDepth = new RenderTextureDepthParameter() { value = RenderTextureDepth.Bits16 };
+        [Range(1, 10)]
+        public FloatParameter diffusion = new FloatParameter() { value = 7 };
 
         public FloatParameter outerGlowIntensity = new FloatParameter() { value = 5 };
         public ColorParameter outerGlowColor = new ColorParameter() { value = Color.white };
@@ -50,9 +50,6 @@ namespace EZhex1991.EZPostProcessing
         {
             public static readonly string Name = "EZGlow";
             public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZGlow";
-            public static readonly string Keyword_BlendMode_Additive = "_BLENDMODE_ADDITIVE";
-            public static readonly string Keyword_BlendMode_Substract = "_BLENDMODE_SUBSTRACT";
-            public static readonly string Keyword_BlendMode_Lerp = "_BLENDMODE_LERP";
             public static readonly string Keyword_DepthTest_On = "_DEPTHTEST_ON";
             public static int Property_GlowTex = Shader.PropertyToID("_GlowTex");
             public static int Property_GlowBloomTex = Shader.PropertyToID("_GlowBloomTex");
@@ -136,17 +133,17 @@ namespace EZhex1991.EZPostProcessing
             command.BeginSample(Uniforms.Name);
             sheet.ClearKeywords();
 
+            GetGlowTexture(context);
+
             // Determine the iteration count
-            int width = settings.textureResolution.value.x / 2;
-            int height = settings.textureResolution.value.y / 2;
+            int width = glowTexture.width / 2;
+            int height = glowTexture.height / 2;
             int size = Mathf.Max(width, height);
-            float logSize = Mathf.Log(size, 2f) + Mathf.Min(settings.diffussion, 10f) - 10f;
+            float logSize = Mathf.Log(size, 2f) + settings.diffusion - 10f;
             int logSizeInt = Mathf.FloorToInt(logSize);
             int iterations = Mathf.Clamp(logSizeInt, 1, k_MaxPyramidSize);
             float sampleScale = 0.5f + logSize - logSizeInt;
             sheet.properties.SetFloat(Uniforms.Property_SampleScale, sampleScale);
-
-            GetGlowTexture(context);
 
             for (int i = 0; i < iterations; i++)
             {

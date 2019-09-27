@@ -21,9 +21,9 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 		half4 _InnerGlowColor;
 		half _InnerGlowIntensity;
 		
-        half4 FragDepthTo01(VaryingsDefault i) : SV_Target
+        half FragDepthTo01(VaryingsDefault i) : SV_Target
         {
-			half4 depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
+			half depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
             return step(depth, 0.999);
         }
         half4 FragDownsample4(VaryingsDefault i) : SV_Target
@@ -31,15 +31,11 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
             half4 color = DownsampleBox4Tap(TEXTURE2D_PARAM(_MainTex, sampler_MainTex), i.texcoord, UnityStereoAdjustedTexelSize(_MainTex_TexelSize).xy);
             return color;
         }
-        half4 Combine(half4 bloom, float2 uv)
-        {
-            half4 color = SAMPLE_TEXTURE2D(_GlowBloomTex, sampler_GlowBloomTex, uv);
-            return (bloom + color) * 0.5;
-        }
         half4 FragUpsampleBox(VaryingsDefault i) : SV_Target
         {
-            half4 bloom = UpsampleBox(TEXTURE2D_PARAM(_MainTex, sampler_MainTex), i.texcoord, UnityStereoAdjustedTexelSize(_MainTex_TexelSize).xy, _SampleScale);
-            return Combine(bloom, i.texcoordStereo);
+            half4 blur = UpsampleBox(TEXTURE2D_PARAM(_MainTex, sampler_MainTex), i.texcoord, UnityStereoAdjustedTexelSize(_MainTex_TexelSize).xy, _SampleScale);
+			half4 base = SAMPLE_TEXTURE2D(_GlowBloomTex, sampler_GlowBloomTex, i.texcoordStereo);
+            return (base + blur) * 0.5;
         }
 	ENDHLSL
 	SubShader {
@@ -56,11 +52,11 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 				#pragma multi_compile _ _DEPTHTEST_ON
 
 				half4 frag (VaryingsDefault i) : SV_Target {
-					half4 glowDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_GlowTex, sampler_GlowTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
-					int glow = step(glowDepth, 0.999);
-					half4 glowBloom = SAMPLE_TEXTURE2D(_GlowBloomTex, sampler_GlowBloomTex, i.texcoord);
+					half glowDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_GlowTex, sampler_GlowTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
+					half glow = step(glowDepth, 0.999);
+					half glowBloom = SAMPLE_TEXTURE2D(_GlowBloomTex, sampler_GlowBloomTex, i.texcoord).r;
 
-					half diff = glowBloom.r - glow.r;
+					half diff = glowBloom - glow;
 					half outerGlow = max(0, diff) * _OuterGlowIntensity;
 					half innerGlow = max(0, -diff) * _InnerGlowIntensity;
 

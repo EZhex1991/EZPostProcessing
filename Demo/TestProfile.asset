@@ -208,12 +208,12 @@ MonoBehaviour:
   textureResolution:
     overrideState: 1
     value: {x: 512, y: 512}
-  diffussion:
-    overrideState: 1
-    value: 7
   textureDepth:
     overrideState: 1
     value: 0
+  diffusion:
+    overrideState: 0
+    value: 7
   outerGlowIntensity:
     overrideState: 0
     value: 5
@@ -565,12 +565,12 @@ MonoBehaviour:
   textureResolution:
     overrideState: 1
     value: {x: 512, y: 512}
-  diffussion:
-    overrideState: 1
-    value: 7
   textureDepth:
     overrideState: 1
     value: 16
+  diffusion:
+    overrideState: 1
+    value: 7
   outerGlowIntensity:
     overrideState: 1
     value: 5
