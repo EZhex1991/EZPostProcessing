@@ -122,6 +122,8 @@ namespace EZhex1991.EZPostProcessing
             distortionCamera.enabled = false;
             distortionCamera.clearFlags = CameraClearFlags.SolidColor;
             distortionCamera.backgroundColor = ClearColor;
+            distortionCamera.allowMSAA = false;
+            distortionCamera.allowHDR = false;
         }
         private void GetDistortionTexture(PostProcessRenderContext context)
         {

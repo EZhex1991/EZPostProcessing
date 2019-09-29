@@ -187,6 +187,8 @@ namespace EZhex1991.EZPostProcessing
             glowCamera.enabled = false;
             glowCamera.clearFlags = CameraClearFlags.SolidColor;
             glowCamera.backgroundColor = ClearColor;
+            glowCamera.allowMSAA = false;
+            glowCamera.allowHDR = false;
         }
         private void GetGlowTexture(PostProcessRenderContext context)
         {
