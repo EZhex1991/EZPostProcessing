@@ -14,16 +14,21 @@ namespace EZhex1991.EZPostProcessing
     [PostProcess(typeof(EZGlowRenderer), PostProcessEvent.BeforeStack, "EZUnity/EZGlow", allowInSceneView: true)]
     public class EZGlow : PostProcessEffectSettings
     {
+        public enum BlendMode { Additive, Substract, Multiply, Lerp }
+        [System.Serializable]
+        public class BlendModeParameter : ParameterOverride<BlendMode> { }
+
         public LayerMaskParameter sourceLayer = new LayerMaskParameter();
         public Vector2IntParameter textureResolution = new Vector2IntParameter() { value = new Vector2Int(512, 512) };
-        public RenderTextureDepthParameter textureDepth = new RenderTextureDepthParameter() { value = RenderTextureDepth.Bits16 };
+        public BoolParameter depthTest = new BoolParameter() { value = true };
         [Range(1, 10)]
         public FloatParameter diffusion = new FloatParameter() { value = 7 };
 
-        public FloatParameter outerGlowIntensity = new FloatParameter() { value = 5 };
+        public BlendModeParameter blendMode = new BlendModeParameter() { value = BlendMode.Additive };
+        [ColorUsage(false, true)]
         public ColorParameter outerGlowColor = new ColorParameter() { value = Color.white };
-        public FloatParameter innerGlowIntensity = new FloatParameter() { value = 5 };
-        public ColorParameter innerGlowColor = new ColorParameter() { value = Color.white };
+        [ColorUsage(false, true)]
+        public ColorParameter innerGlowColor = new ColorParameter() { value = Color.black };
     }
 
     public class EZGlowRenderer : PostProcessEffectRenderer<EZGlow>
@@ -50,13 +55,12 @@ namespace EZhex1991.EZPostProcessing
         {
             public static readonly string Name = "EZGlow";
             public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZGlow";
+            public static readonly string Keyword_BlendMode = "_BLENDMODE";
             public static readonly string Keyword_DepthTest_On = "_DEPTHTEST_ON";
             public static int Property_GlowTex = Shader.PropertyToID("_GlowTex");
             public static int Property_GlowBloomTex = Shader.PropertyToID("_GlowBloomTex");
             public static int Property_OuterGlowColor = Shader.PropertyToID("_OuterGlowColor");
-            public static int Property_OuterGlowIntensity = Shader.PropertyToID("_OuterGlowIntensity");
             public static int Property_InnerGlowColor = Shader.PropertyToID("_InnerGlowColor");
-            public static int Property_InnerGlowIntensity = Shader.PropertyToID("_InnerGlowIntensity");
             public static int Property_SampleScale = Shader.PropertyToID("_SampleScale");
         }
 
@@ -94,12 +98,11 @@ namespace EZhex1991.EZPostProcessing
             get
             {
                 Vector2Int resolution = settings.textureResolution;
-                int textureDepth = settings.textureDepth.value == RenderTextureDepth.None ? 16 : settings.textureDepth;
                 if (m_GlowTexture == null
                     || m_GlowTexture.width != resolution.x || m_GlowTexture.height != resolution.y
                 )
                 {
-                    m_GlowTexture = RenderTexture.GetTemporary(resolution.x, resolution.y, textureDepth, RenderTextureFormat.Depth, RenderTextureReadWrite.Default);
+                    m_GlowTexture = RenderTexture.GetTemporary(resolution.x, resolution.y, 16, RenderTextureFormat.Depth, RenderTextureReadWrite.Default);
                 }
                 return m_GlowTexture;
             }
@@ -175,13 +178,9 @@ namespace EZhex1991.EZPostProcessing
             command.SetGlobalTexture(Uniforms.Property_GlowBloomTex, lastUp);
             sheet.properties.SetTexture(Uniforms.Property_GlowTex, glowTexture);
             sheet.properties.SetColor(Uniforms.Property_OuterGlowColor, settings.outerGlowColor);
-            sheet.properties.SetFloat(Uniforms.Property_OuterGlowIntensity, settings.outerGlowIntensity);
             sheet.properties.SetColor(Uniforms.Property_InnerGlowColor, settings.innerGlowColor);
-            sheet.properties.SetFloat(Uniforms.Property_InnerGlowIntensity, settings.innerGlowIntensity);
-            if (settings.textureDepth.value != RenderTextureDepth.None)
-            {
-                sheet.EnableKeyword(Uniforms.Keyword_DepthTest_On);
-            }
+            sheet.SetKeyword(Uniforms.Keyword_DepthTest_On, settings.depthTest);
+            sheet.SetKeyword(Uniforms.Keyword_BlendMode, settings.blendMode);
             command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)Pass.Combine);
 
             for (int i = 0; i < iterations; i++)
@@ -194,7 +193,7 @@ namespace EZhex1991.EZPostProcessing
         }
         public override DepthTextureMode GetCameraFlags()
         {
-            return settings.textureDepth.value != RenderTextureDepth.None ? (base.GetCameraFlags() | DepthTextureMode.Depth) : base.GetCameraFlags();
+            return settings.depthTest ? DepthTextureMode.Depth : DepthTextureMode.None;
         }
 
         private static void CopyCameraSettings(Camera src, Camera dst)

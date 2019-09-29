@@ -4,6 +4,7 @@
  * Description:     
  */
 #if UNITY_POST_PROCESSING_STACK_V2
+using System;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
@@ -136,6 +137,19 @@ namespace EZhex1991.EZPostProcessing
                 sheet.DisableKeyword(keyword);
             }
         }
+
+        public static string FormatKeyword(string prefix, Enum selection)
+        {
+            return string.Format("{0}_{1}", prefix, selection).ToUpperInvariant();
+        }
+        public static void SetKeyword(this PropertySheet sheet, string prefix, Enum selection)
+        {
+            foreach (Enum value in Enum.GetValues(selection.GetType()))
+            {
+                sheet.DisableKeyword(FormatKeyword(prefix, value));
+            }
+            sheet.EnableKeyword(FormatKeyword(prefix, selection));
+        }
     }
 }
- #endif
+#endif

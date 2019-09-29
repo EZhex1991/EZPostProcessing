@@ -17,9 +17,7 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 		float _SampleScale;
 
 		half4 _OuterGlowColor;
-		half _OuterGlowIntensity;
 		half4 _InnerGlowColor;
-		half _InnerGlowIntensity;
 		
         half FragDepthTo01(VaryingsDefault i) : SV_Target
         {
@@ -49,6 +47,7 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 
 				#pragma vertex VertDefault
 				#pragma fragment frag
+				#pragma multi_compile _ _BLENDMODE_ADDITIVE _BLENDMODE_SUBSTRACT _BLENDMODE_MULTIPLY _BLENDMODE_LERP
 				#pragma multi_compile _ _DEPTHTEST_ON
 
 				half4 frag (VaryingsDefault i) : SV_Target {
@@ -57,8 +56,8 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 					half glowBloom = SAMPLE_TEXTURE2D(_GlowBloomTex, sampler_GlowBloomTex, i.texcoord).r;
 
 					half diff = glowBloom - glow;
-					half outerGlow = max(0, diff) * _OuterGlowIntensity;
-					half innerGlow = max(0, -diff) * _InnerGlowIntensity;
+					half outerGlow = max(0, diff);
+					half innerGlow = max(0, -diff);
 
 					#if _DEPTHTEST_ON
 						float mainDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
@@ -68,8 +67,19 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 					#endif
 					
 					half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
-					color.rgb += outerGlow * _OuterGlowColor.rgb;
-					color.rgb += innerGlow * _InnerGlowColor.rgb;
+					#if _BLENDMODE_ADDITIVE
+						color.rgb += outerGlow * _OuterGlowColor.rgb;
+						color.rgb += innerGlow * _InnerGlowColor.rgb;
+					#elif _BLENDMODE_SUBSTRACT
+						color.rgb -= outerGlow * _OuterGlowColor.rgb;
+						color.rgb -= innerGlow * _InnerGlowColor.rgb;
+					#elif _BLENDMODE_MULTIPLY
+						color.rgb *= lerp(1, _OuterGlowColor.rgb, outerGlow);
+						color.rgb *= lerp(1, _InnerGlowColor.rgb, innerGlow);
+					#elif _BLENDMODE_LERP
+						color.rgb = lerp(color.rgb, _OuterGlowColor.rgb, outerGlow);
+						color.rgb = lerp(color.rgb, _InnerGlowColor.rgb, innerGlow);
+					#endif
 
 					return color;
 				}

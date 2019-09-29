@@ -16,7 +16,7 @@ namespace EZhex1991.EZPostProcessing
         private SerializedParameterOverride m_SourceLayer;
         private SerializedParameterOverride m_TextureResolution;
         private SerializedParameterOverride m_TextureFormat;
-        private SerializedParameterOverride m_TextureDepth;
+        private SerializedParameterOverride m_DepthTest;
         private SerializedParameterOverride m_DistortionTex;
 
         public override void OnEnable()
@@ -27,7 +27,7 @@ namespace EZhex1991.EZPostProcessing
             m_SourceLayer = FindParameterOverride(x => x.sourceLayer);
             m_TextureResolution = FindParameterOverride(x => x.textureResolution);
             m_TextureFormat = FindParameterOverride(x => x.textureFormat);
-            m_TextureDepth = FindParameterOverride(x => x.textureDepth); ;
+            m_DepthTest = FindParameterOverride(x => x.depthTest); ;
             m_DistortionTex = FindParameterOverride(x => x.distortionTex);
         }
 
@@ -36,19 +36,18 @@ namespace EZhex1991.EZPostProcessing
             base.OnInspectorGUI();
 
             PropertyField(m_Mode);
+            PropertyField(m_Intensity);
             int mode = m_Mode.value.intValue;
             if (mode == (int)EZDistortion.Mode.Screen)
             {
                 PropertyField(m_DistortionTex);
-                PropertyField(m_Intensity);
             }
             else if (mode == (int)EZDistortion.Mode.Layer)
             {
                 PropertyField(m_SourceLayer);
-                PropertyField(m_Intensity);
                 PropertyField(m_TextureResolution);
                 PropertyField(m_TextureFormat);
-                PropertyField(m_TextureDepth);
+                PropertyField(m_DepthTest);
             }
         }
     }
