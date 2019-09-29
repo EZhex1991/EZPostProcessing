@@ -14,10 +14,15 @@ namespace EZhex1991.EZPostProcessing
     [PostProcess(typeof(EZGlowRenderer), PostProcessEvent.BeforeStack, "EZUnity/EZGlow", allowInSceneView: true)]
     public class EZGlow : PostProcessEffectSettings
     {
+        public enum Mode { Outer, Inner }
         public enum BlendMode { Additive, Substract, Multiply, Lerp }
+
+        [System.Serializable]
+        public class ModeParameter : ParameterOverride<Mode> { }
         [System.Serializable]
         public class BlendModeParameter : ParameterOverride<BlendMode> { }
 
+        public ModeParameter mode = new ModeParameter() { value = Mode.Outer };
         public LayerMaskParameter sourceLayer = new LayerMaskParameter();
         public Vector2IntParameter textureResolution = new Vector2IntParameter() { value = new Vector2Int(512, 512) };
         public BoolParameter depthTest = new BoolParameter() { value = true };
@@ -25,10 +30,10 @@ namespace EZhex1991.EZPostProcessing
         public FloatParameter diffusion = new FloatParameter() { value = 7 };
 
         public BlendModeParameter blendMode = new BlendModeParameter() { value = BlendMode.Additive };
+        [UnityEngine.Rendering.PostProcessing.Min(0)]
+        public FloatParameter intensity = new FloatParameter() { value = 0 };
         [ColorUsage(false, true)]
-        public ColorParameter outerGlowColor = new ColorParameter() { value = Color.white };
-        [ColorUsage(false, true)]
-        public ColorParameter innerGlowColor = new ColorParameter() { value = Color.black };
+        public ColorParameter color = new ColorParameter() { value = Color.white };
     }
 
     public class EZGlowRenderer : PostProcessEffectRenderer<EZGlow>
@@ -46,7 +51,8 @@ namespace EZhex1991.EZPostProcessing
         private enum Pass
         {
             Combine,
-            GlowBase,
+            GlowOuter,
+            GlowInner,
             DownSample,
             UpSample,
         }
@@ -59,8 +65,9 @@ namespace EZhex1991.EZPostProcessing
             public static readonly string Keyword_DepthTest_On = "_DEPTHTEST_ON";
             public static int Property_GlowTex = Shader.PropertyToID("_GlowTex");
             public static int Property_GlowBloomTex = Shader.PropertyToID("_GlowBloomTex");
-            public static int Property_OuterGlowColor = Shader.PropertyToID("_OuterGlowColor");
-            public static int Property_InnerGlowColor = Shader.PropertyToID("_InnerGlowColor");
+            public static int Property_GlowDepthTex = Shader.PropertyToID("_GlowDepthTex");
+            public static int Property_GlowIntensity = Shader.PropertyToID("_GlowIntensity");
+            public static int Property_GlowColor = Shader.PropertyToID("_GlowColor");
             public static int Property_SampleScale = Shader.PropertyToID("_SampleScale");
         }
 
@@ -79,37 +86,12 @@ namespace EZhex1991.EZPostProcessing
 
         private static readonly Color ClearColor = Color.black;
 
-        private Camera m_GlowCamera;
-        private Camera glowCamera
-        {
-            get
-            {
-                if (m_GlowCamera == null)
-                {
-                    SetupCamera();
-                }
-                return m_GlowCamera;
-            }
-        }
-
-        private RenderTexture m_GlowTexture;
-        private RenderTexture glowTexture
-        {
-            get
-            {
-                Vector2Int resolution = settings.textureResolution;
-                if (m_GlowTexture == null
-                    || m_GlowTexture.width != resolution.x || m_GlowTexture.height != resolution.y
-                )
-                {
-                    m_GlowTexture = RenderTexture.GetTemporary(resolution.x, resolution.y, 16, RenderTextureFormat.Depth, RenderTextureReadWrite.Default);
-                }
-                return m_GlowTexture;
-            }
-        }
+        private Camera glowCamera;
+        private RenderTexture glowDepthTexture;
 
         public override void Init()
         {
+            SetupCamera();
             m_Pyramid = new Level[k_MaxPyramidSize];
             for (int i = 0; i < k_MaxPyramidSize; i++)
             {
@@ -123,11 +105,11 @@ namespace EZhex1991.EZPostProcessing
         public override void Release()
         {
             base.Release();
-            if (m_GlowCamera != null)
+            if (glowCamera != null)
             {
-                RuntimeUtilities.Destroy(m_GlowCamera.gameObject);
+                RuntimeUtilities.Destroy(glowCamera.gameObject);
             }
-            if (m_GlowTexture != null) RenderTexture.ReleaseTemporary(m_GlowTexture);
+            if (glowDepthTexture != null) RenderTexture.ReleaseTemporary(glowDepthTexture);
         }
         public override void Render(PostProcessRenderContext context)
         {
@@ -139,8 +121,8 @@ namespace EZhex1991.EZPostProcessing
             GetGlowTexture(context);
 
             // Determine the iteration count
-            int width = glowTexture.width / 2;
-            int height = glowTexture.height / 2;
+            int width = glowDepthTexture.width / 2;
+            int height = glowDepthTexture.height / 2;
             int size = Mathf.Max(width, height);
             float logSize = Mathf.Log(size, 2f) + settings.diffusion - 10f;
             int logSizeInt = Mathf.FloorToInt(logSize);
@@ -157,7 +139,7 @@ namespace EZhex1991.EZPostProcessing
             }
 
             int lastDown = m_Pyramid[0].down;
-            command.BlitFullscreenTriangle(glowTexture, lastDown, sheet, (int)Pass.GlowBase);
+            command.BlitFullscreenTriangle(glowDepthTexture, lastDown, sheet, settings.mode.value == EZGlow.Mode.Outer ? (int)Pass.GlowOuter : (int)Pass.GlowInner);
             for (int i = 1; i < iterations; i++)
             {
                 int mipDown = m_Pyramid[i].down;
@@ -175,10 +157,11 @@ namespace EZhex1991.EZPostProcessing
                 lastUp = mipUp;
             }
 
+            command.SetGlobalTexture(Uniforms.Property_GlowTex, m_Pyramid[0].down);
             command.SetGlobalTexture(Uniforms.Property_GlowBloomTex, lastUp);
-            sheet.properties.SetTexture(Uniforms.Property_GlowTex, glowTexture);
-            sheet.properties.SetColor(Uniforms.Property_OuterGlowColor, settings.outerGlowColor);
-            sheet.properties.SetColor(Uniforms.Property_InnerGlowColor, settings.innerGlowColor);
+            sheet.properties.SetTexture(Uniforms.Property_GlowDepthTex, glowDepthTexture);
+            sheet.properties.SetFloat(Uniforms.Property_GlowIntensity, settings.intensity);
+            sheet.properties.SetColor(Uniforms.Property_GlowColor, settings.color);
             sheet.SetKeyword(Uniforms.Keyword_DepthTest_On, settings.depthTest);
             sheet.SetKeyword(Uniforms.Keyword_BlendMode, settings.blendMode);
             command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)Pass.Combine);
@@ -196,33 +179,22 @@ namespace EZhex1991.EZPostProcessing
             return settings.depthTest ? DepthTextureMode.Depth : DepthTextureMode.None;
         }
 
-        private static void CopyCameraSettings(Camera src, Camera dst)
-        {
-            if (src == null || dst == null) return;
-            dst.transform.position = src.transform.position;
-            dst.transform.rotation = src.transform.rotation;
-            dst.orthographic = src.orthographic;
-            dst.farClipPlane = src.farClipPlane;
-            dst.nearClipPlane = src.nearClipPlane;
-            dst.fieldOfView = src.fieldOfView;
-            dst.aspect = src.aspect;
-            dst.orthographicSize = src.orthographicSize;
-        }
         private void SetupCamera()
         {
             GameObject go = new GameObject(string.Format("EZOuterGlowCamera-{0}", GetHashCode()));
             go.hideFlags = HideFlags.HideAndDontSave;
-            m_GlowCamera = go.AddComponent<Camera>();
-            m_GlowCamera.enabled = false;
-            m_GlowCamera.clearFlags = CameraClearFlags.SolidColor;
-            m_GlowCamera.backgroundColor = ClearColor;
+            glowCamera = go.AddComponent<Camera>();
+            glowCamera.enabled = false;
+            glowCamera.clearFlags = CameraClearFlags.SolidColor;
+            glowCamera.backgroundColor = ClearColor;
         }
         private void GetGlowTexture(PostProcessRenderContext context)
         {
-            CopyCameraSettings(context.camera, glowCamera);
-            glowCamera.cullingMask = settings.sourceLayer;
-            glowCamera.depthTextureMode = DepthTextureMode.Depth;
-            glowCamera.targetTexture = glowTexture;
+            Vector2Int resolution = settings.textureResolution;
+            EZPostProcessingUtility.GetTexture(ref glowDepthTexture, resolution, 16, RenderTextureFormat.Depth);
+            EZPostProcessingUtility.CopyCameraSettings(context.camera, glowCamera,
+                settings.sourceLayer, DepthTextureMode.Depth);
+            glowCamera.targetTexture = glowDepthTexture;
             glowCamera.Render();
         }
     }

@@ -126,6 +126,40 @@ namespace EZhex1991.EZPostProcessing
             }
         }
 
+        public static void CopyCameraSettings(Camera src, Camera dst)
+        {
+            if (src == null || dst == null) return;
+            dst.transform.position = src.transform.position;
+            dst.transform.rotation = src.transform.rotation;
+            dst.orthographic = src.orthographic;
+            dst.farClipPlane = src.farClipPlane;
+            dst.nearClipPlane = src.nearClipPlane;
+            dst.fieldOfView = src.fieldOfView;
+            dst.aspect = src.aspect;
+            dst.orthographicSize = src.orthographicSize;
+        }
+        public static void CopyCameraSettings(Camera src, Camera dst, LayerMask cullingMaskOverride)
+        {
+            CopyCameraSettings(src, dst);
+            dst.cullingMask = cullingMaskOverride;
+        }
+        public static void CopyCameraSettings(Camera src, Camera dst, LayerMask cullingMaskOverride, DepthTextureMode depthMoveOverride)
+        {
+            CopyCameraSettings(src, dst);
+            dst.cullingMask = cullingMaskOverride;
+            dst.depthTextureMode = depthMoveOverride;
+        }
+
+        public static void GetTexture(ref RenderTexture rt, Vector2Int resolution, int depth, RenderTextureFormat format)
+        {
+            if (rt == null) rt = RenderTexture.GetTemporary(resolution.x, resolution.y, depth, format);
+            else if (rt.width != resolution.x || rt.height != resolution.y || rt.format != format)
+            {
+                RenderTexture.ReleaseTemporary(rt);
+                rt = RenderTexture.GetTemporary(resolution.x, resolution.y, depth, format);
+            }
+        }
+
         public static void SetKeyword(this PropertySheet sheet, string keyword, bool value)
         {
             if (value)

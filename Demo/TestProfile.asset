@@ -17,8 +17,8 @@ MonoBehaviour:
   - {fileID: 114472218384341448}
   - {fileID: 114480943200636920}
   - {fileID: 114132224149561278}
-  - {fileID: 114015933187187390}
   - {fileID: 114377123851961114}
+  - {fileID: 114302888658557160}
 --- !u!114 &114014720246538040
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -63,6 +63,9 @@ MonoBehaviour:
   enabled:
     overrideState: 1
     value: 1
+  mode:
+    overrideState: 0
+    value: 0
   sourceLayer:
     overrideState: 1
     value:
@@ -79,13 +82,13 @@ MonoBehaviour:
     value: 4
   blendMode:
     overrideState: 1
+    value: 1
+  intensity:
+    overrideState: 0
     value: 0
-  outerGlowColor:
-    overrideState: 1
+  color:
+    overrideState: 0
     value: {r: 1, g: 1, b: 1, a: 1}
-  innerGlowColor:
-    overrideState: 1
-    value: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &114039898272091738
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -240,6 +243,9 @@ MonoBehaviour:
   enabled:
     overrideState: 1
     value: 1
+  mode:
+    overrideState: 0
+    value: 0
   sourceLayer:
     overrideState: 1
     value:
@@ -257,10 +263,10 @@ MonoBehaviour:
   blendMode:
     overrideState: 0
     value: 0
-  outerGlowColor:
+  intensity:
     overrideState: 0
-    value: {r: 1, g: 1, b: 1, a: 1}
-  innerGlowColor:
+    value: 0
+  color:
     overrideState: 0
     value: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &114244473407199044
@@ -308,6 +314,48 @@ MonoBehaviour:
   _OutlineStrength:
     overrideState: 0
     value: 1
+--- !u!114 &114302888658557160
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf7bdae2eb001844bf15291fa22255d, type: 3}
+  m_Name: EZGlow
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  mode:
+    overrideState: 1
+    value: 0
+  sourceLayer:
+    overrideState: 1
+    value:
+      serializedVersion: 2
+      m_Bits: 2
+  textureResolution:
+    overrideState: 1
+    value: {x: 512, y: 512}
+  depthTest:
+    overrideState: 1
+    value: 1
+  diffusion:
+    overrideState: 1
+    value: 7
+  blendMode:
+    overrideState: 1
+    value: 0
+  intensity:
+    overrideState: 1
+    value: 0.5
+  color:
+    overrideState: 1
+    value: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &114372768077199508
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -428,6 +476,48 @@ MonoBehaviour:
   _OutlineThickness:
     overrideState: 1
     value: 1
+--- !u!114 &114400439911925230
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf7bdae2eb001844bf15291fa22255d, type: 3}
+  m_Name: EZGlow
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  mode:
+    overrideState: 0
+    value: 0
+  sourceLayer:
+    overrideState: 0
+    value:
+      serializedVersion: 2
+      m_Bits: 0
+  textureResolution:
+    overrideState: 0
+    value: {x: 512, y: 512}
+  depthTest:
+    overrideState: 0
+    value: 1
+  diffusion:
+    overrideState: 0
+    value: 7
+  blendMode:
+    overrideState: 0
+    value: 0
+  intensity:
+    overrideState: 0
+    value: 0
+  color:
+    overrideState: 0
+    value: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &114472218384341448
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -532,6 +622,48 @@ MonoBehaviour:
   _GradientSoftness:
     overrideState: 0
     value: {x: 0, y: 1}
+--- !u!114 &114517181364998954
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33ace49906c1cbd43a24d429ba6a6efa, type: 3}
+  m_Name: EZInnerGlow
+  m_EditorClassIdentifier: 
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  sourceLayer:
+    overrideState: 1
+    value:
+      m_Bits: 2
+  textureResolution:
+    overrideState: 1
+    value: {x: 512, y: 512}
+  depthTest:
+    overrideState: 1
+    value: 0
+  diffusion:
+    overrideState: 1
+    value: 7
+  blendMode:
+    overrideState: 1
+    value: 1
+  intensity:
+    overrideState: 1
+    value: 2.39
+  color:
+    overrideState: 1
+    value:
+      r: 0
+      g: 0
+      b: 0
+      a: 1
 --- !u!114 &114526044361150356
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -597,6 +729,45 @@ MonoBehaviour:
   _OutlineStrength:
     overrideState: 1
     value: 1
+--- !u!114 &114729935169759584
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: EZOuterGlow
+  m_EditorClassIdentifier: Assembly-CSharp:EZhex1991.EZPostProcessing:EZOuterGlow
+  active: 1
+  enabled:
+    overrideState: 1
+    value: 1
+  sourceLayer:
+    overrideState: 1
+    value:
+      serializedVersion: 2
+      m_Bits: 2
+  textureResolution:
+    overrideState: 1
+    value: {x: 512, y: 512}
+  depthTest:
+    overrideState: 1
+    value: 1
+  diffusion:
+    overrideState: 1
+    value: 7
+  blendMode:
+    overrideState: 1
+    value: 0
+  intensity:
+    overrideState: 1
+    value: 5
+  color:
+    overrideState: 1
+    value: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &114735288612485908
 MonoBehaviour:
   m_ObjectHideFlags: 3
