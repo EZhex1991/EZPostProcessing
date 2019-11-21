@@ -35,10 +35,11 @@ Shader "Hidden/EZUnity/PostProcessing/EZDepthBasedGradient" {
 				half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.texcoord);
 
 				float depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
-
-				depth = InverseLerp(_GradientSoftness.x, _GradientSoftness.y, pow(depth, _GradientPower));
-
-				color *= lerp(_ColorNear, _ColorFar, depth);
+				
+				if (depth < 1) {
+					depth = InverseLerp(_GradientSoftness.x, _GradientSoftness.y, pow(depth, _GradientPower));
+					color *= lerp(_ColorNear, _ColorFar, depth);
+				}
 
 				return color;
 			}
