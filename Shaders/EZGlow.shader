@@ -22,12 +22,22 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
         half FragDepthOuter(VaryingsDefault i) : SV_Target
         {
 			half depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
-            return step(depth, 0.999);
+			#if _EDGEMODE_INTERSECTION
+				half mainDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
+				return step(depth, mainDepth - 1e-6);
+			#else
+				return step(depth, 0.999);
+			#endif
         }
         half FragDepthInner(VaryingsDefault i) : SV_Target
         {
 			half depth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_MainTex, sampler_MainTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
-            return step(0.999, depth);
+			#if _EDGEMODE_INTERSECTION
+				half mainDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
+				return step(mainDepth - 1e-6, depth);
+			#else
+				return step(0.999, depth);
+			#endif
         }
         half4 FragDownsample(VaryingsDefault i) : SV_Target
         {
@@ -46,7 +56,7 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 			half glowBloom = SAMPLE_TEXTURE2D(_GlowBloomTex, sampler_GlowBloomTex, i.texcoord).r;
 			half glow = max(glowBloom - glowbase, 0) * _GlowIntensity;
 
-			#if _DEPTHTEST_ON
+			#if _EDGEMODE_PROJECTION
 				half mainDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
 				half glowDepth = Linear01Depth(SAMPLE_DEPTH_TEXTURE_LOD(_GlowDepthTex, sampler_GlowDepthTex, UnityStereoTransformScreenSpaceTex(i.texcoord), 0));
 				glow *= step(glowDepth, mainDepth);
@@ -78,7 +88,7 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 				#pragma vertex VertDefault
 				#pragma fragment FragCombine
 				#pragma multi_compile _ _BLENDMODE_ADDITIVE _BLENDMODE_SUBSTRACT _BLENDMODE_MULTIPLY _BLENDMODE_LERP
-				#pragma multi_compile _ _DEPTHTEST_ON
+				#pragma multi_compile _ _EDGEMODE_PROJECTION
 
 			ENDHLSL
 		}
@@ -89,6 +99,7 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 
 				#pragma vertex VertDefault
 				#pragma fragment FragDepthOuter
+				#pragma multi_compile _ _EDGEMODE_INTERSECTION
 
 			ENDHLSL
 		}
@@ -99,6 +110,7 @@ Shader "Hidden/EZUnity/PostProcessing/EZGlow" {
 
 				#pragma vertex VertDefault
 				#pragma fragment FragDepthInner
+				#pragma multi_compile _ _EDGEMODE_INTERSECTION
 
 			ENDHLSL
 		}

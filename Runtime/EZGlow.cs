@@ -15,17 +15,20 @@ namespace EZhex1991.EZPostProcessing
     public class EZGlow : PostProcessEffectSettings
     {
         public enum Mode { Outer, Inner }
+        public enum EdgeMode { None, Projection, Intersection }
         public enum BlendMode { Additive, Substract, Multiply, Lerp }
 
         [System.Serializable]
         public class ModeParameter : ParameterOverride<Mode> { }
         [System.Serializable]
         public class BlendModeParameter : ParameterOverride<BlendMode> { }
+        [System.Serializable]
+        public class EdgeModeParameter : ParameterOverride<EdgeMode> { }
 
         public ModeParameter mode = new ModeParameter() { value = Mode.Outer };
         public LayerMaskParameter sourceLayer = new LayerMaskParameter();
         public Vector2IntParameter textureResolution = new Vector2IntParameter() { value = new Vector2Int(512, 512) };
-        public BoolParameter depthTest = new BoolParameter() { value = true };
+        public EdgeModeParameter edgeMode = new EdgeModeParameter() { value = EdgeMode.Intersection };
         [Range(1, 10)]
         public FloatParameter diffusion = new FloatParameter() { value = 7 };
 
@@ -62,7 +65,7 @@ namespace EZhex1991.EZPostProcessing
             public static readonly string Name = "EZGlow";
             public static readonly string ShaderName = "Hidden/EZUnity/PostProcessing/EZGlow";
             public static readonly string Keyword_BlendMode = "_BLENDMODE";
-            public static readonly string Keyword_DepthTest_On = "_DEPTHTEST_ON";
+            public static readonly string Keyword_EdgeMode = "_EDGEMODE";
             public static int Property_GlowTex = Shader.PropertyToID("_GlowTex");
             public static int Property_GlowBloomTex = Shader.PropertyToID("_GlowBloomTex");
             public static int Property_GlowDepthTex = Shader.PropertyToID("_GlowDepthTex");
@@ -117,8 +120,11 @@ namespace EZhex1991.EZPostProcessing
             CommandBuffer command = context.command;
             command.BeginSample(Uniforms.Name);
             sheet.ClearKeywords();
+            sheet.SetKeyword(Uniforms.Keyword_EdgeMode, settings.edgeMode);
+            sheet.SetKeyword(Uniforms.Keyword_BlendMode, settings.blendMode);
 
             GetGlowTexture(context);
+            sheet.properties.SetTexture(Uniforms.Property_GlowDepthTex, glowDepthTexture);
 
             // Determine the iteration count
             int width = glowDepthTexture.width / 2;
@@ -159,11 +165,8 @@ namespace EZhex1991.EZPostProcessing
 
             command.SetGlobalTexture(Uniforms.Property_GlowTex, m_Pyramid[0].down);
             command.SetGlobalTexture(Uniforms.Property_GlowBloomTex, lastUp);
-            sheet.properties.SetTexture(Uniforms.Property_GlowDepthTex, glowDepthTexture);
             sheet.properties.SetFloat(Uniforms.Property_GlowIntensity, settings.intensity);
             sheet.properties.SetColor(Uniforms.Property_GlowColor, settings.color);
-            sheet.SetKeyword(Uniforms.Keyword_DepthTest_On, settings.depthTest);
-            sheet.SetKeyword(Uniforms.Keyword_BlendMode, settings.blendMode);
             command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)Pass.Combine);
 
             for (int i = 0; i < iterations; i++)
@@ -176,7 +179,7 @@ namespace EZhex1991.EZPostProcessing
         }
         public override DepthTextureMode GetCameraFlags()
         {
-            return settings.depthTest ? DepthTextureMode.Depth : DepthTextureMode.None;
+            return settings.edgeMode.value != EZGlow.EdgeMode.None ? DepthTextureMode.Depth : DepthTextureMode.None;
         }
 
         private void SetupCamera()
