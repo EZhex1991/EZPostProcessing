@@ -74,9 +74,9 @@ MonoBehaviour:
   textureResolution:
     overrideState: 1
     value: {x: 512, y: 512}
-  depthTest:
-    overrideState: 1
-    value: 1
+  edgeMode:
+    overrideState: 0
+    value: 2
   diffusion:
     overrideState: 1
     value: 4
@@ -146,7 +146,7 @@ MonoBehaviour:
     value: {r: 0.299, g: 0.587, b: 0.114, a: 1}
   _Tolerance:
     overrideState: 1
-    value: 5
+    value: 20
   _OutlineColor:
     overrideState: 1
     value: {r: 0, g: 0, b: 0, a: 1}
@@ -202,7 +202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0cea293c6c8f4f4699ec24bfc2d28e5, type: 3}
   m_Name: EZDepthBasedOutline
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
     value: 1
@@ -220,7 +220,7 @@ MonoBehaviour:
     value: {r: 0, g: 0, b: 0, a: 0}
   _CoverStrength:
     overrideState: 1
-    value: 0
+    value: 1
   _OutlineColor:
     overrideState: 1
     value: {r: 0, g: 0, b: 1, a: 0}
@@ -254,9 +254,9 @@ MonoBehaviour:
   textureResolution:
     overrideState: 1
     value: {x: 512, y: 512}
-  depthTest:
+  edgeMode:
     overrideState: 0
-    value: 1
+    value: 2
   diffusion:
     overrideState: 0
     value: 7
@@ -332,7 +332,7 @@ MonoBehaviour:
     value: 1
   mode:
     overrideState: 1
-    value: 0
+    value: 1
   sourceLayer:
     overrideState: 1
     value:
@@ -341,9 +341,9 @@ MonoBehaviour:
   textureResolution:
     overrideState: 1
     value: {x: 512, y: 512}
-  depthTest:
+  edgeMode:
     overrideState: 1
-    value: 1
+    value: 2
   diffusion:
     overrideState: 1
     value: 7
@@ -352,10 +352,10 @@ MonoBehaviour:
     value: 0
   intensity:
     overrideState: 1
-    value: 0.5
+    value: 1
   color:
     overrideState: 1
-    value: {r: 1, g: 1, b: 1, a: 1}
+    value: {r: 0, g: 0, b: 0.5019608, a: 1}
 --- !u!114 &114372768077199508
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -503,9 +503,9 @@ MonoBehaviour:
   textureResolution:
     overrideState: 0
     value: {x: 512, y: 512}
-  depthTest:
+  edgeMode:
     overrideState: 0
-    value: 1
+    value: 2
   diffusion:
     overrideState: 0
     value: 7
@@ -530,22 +530,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f7b53524febbc4ea4d64ab1b9329fe, type: 3}
   m_Name: EZDepthBasedGradient
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
     value: 1
   _ColorNear:
     overrideState: 1
-    value: {r: 1, g: 1, b: 0.8, a: 1}
+    value: {r: 1, g: 0, b: 0, a: 1}
   _ColorFar:
     overrideState: 1
-    value: {r: 0.8, g: 0.8, b: 1, a: 1}
+    value: {r: 0, g: 0, b: 1, a: 1}
   _GradientPower:
     overrideState: 1
     value: 1
   _GradientSoftness:
     overrideState: 1
-    value: {x: 0.3, y: 0.7}
+    value: {x: 0.15, y: 0.35}
 --- !u!114 &114480943200636920
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -558,7 +558,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 037ac13988a27f64882e4e454806a394, type: 3}
   m_Name: EZDistortion
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
     value: 1
@@ -584,7 +584,7 @@ MonoBehaviour:
     value: 1
   distortionTex:
     overrideState: 1
-    value: {fileID: 2800000, guid: 188651146f9f345429d0c22dcb0d5f08, type: 3}
+    value: {fileID: 2800000, guid: e6b36aab6ddc12c4ca82c132a93645d1, type: 3}
     defaultState: 2
 --- !u!114 &114511983909454506
 MonoBehaviour:

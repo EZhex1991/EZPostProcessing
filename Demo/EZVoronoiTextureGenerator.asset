@@ -15,9 +15,9 @@ MonoBehaviour:
   m_OutputResolution: {x: 256, y: 256}
   m_OutputFormat: 3
   m_OutputEncoding: 1
-  m_OutputTexture: {fileID: 2800000, guid: 188651146f9f345429d0c22dcb0d5f08, type: 3}
+  m_OutputTexture: {fileID: 2800000, guid: e6b36aab6ddc12c4ca82c132a93645d1, type: 3}
   m_CorrespondingGenerator: {fileID: 0}
   m_Shader: {fileID: 4800000, guid: 44929f49243a9e84da9e9f504a67a868, type: 3}
   fillType: 1
   angleOffset: 2
-  voronoiDensity: {x: 10, y: 10}
+  voronoiDensity: {x: 50, y: 50}
