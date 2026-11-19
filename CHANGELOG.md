@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] - 2026-11-19
+
+### Changed
+
+- Added package-level `.meta` files for package assets and documentation.
+
 ## [1.0.0] - 2026-11-19
 
 ### Added

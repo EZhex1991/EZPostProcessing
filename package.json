@@ -1,6 +1,6 @@
 {
   "name": "ezhex1991.ezpostprocessing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "EZPostProcessing",
   "description": "Custom post-processing effects for Unity's Post-Processing Stack.",
   "unity": "2020.3",
