@@ -1,0 +1,20 @@
+{
+    "name": "EZhex1991.EZPostProcessing.Editor",
+    "rootNamespace": "EZhex1991.EZPostProcessing",
+    "references": [
+        "GUID:345ddf31d3251374db52d6067e1f5f17",
+        "GUID:a35efad8797223d499f8c68b1f545dbc",
+        "GUID:d60799ab2a985554ea1a39cd38695018"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

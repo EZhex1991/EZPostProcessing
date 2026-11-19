@@ -1,0 +1,22 @@
+{
+  "name": "ezhex1991.ezpostprocessing",
+  "version": "1.0.0",
+  "displayName": "EZPostProcessing",
+  "description": "Custom post-processing effects for Unity's Post-Processing Stack.",
+  "unity": "2020.3",
+  "dependencies": {
+    "com.unity.postprocessing": "3.0.3"
+  },
+  "samples": [
+    {
+      "displayName": "EZPostProcessing Demo",
+      "description": "Example scene and assets for the EZPostProcessing effects.",
+      "path": "Samples~/Demo"
+    }
+  ],
+  "author": {
+    "name": "EZhex1991",
+    "email": "ezhex1991@outlook.com",
+    "url": "https://github.com/EZhex1991/EZPostProcessing"
+  }
+}
